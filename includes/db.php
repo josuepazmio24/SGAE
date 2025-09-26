@@ -1,7 +1,7 @@
 <?php
 // includes/db.php
 $DB_HOST = 'localhost';
-$DB_NAME = 'login_rut';
+$DB_NAME = 'SGAE';
 $DB_USER = 'root';
 $DB_PASS = 'root'; // cambia según tu entorno
 
