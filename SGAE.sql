@@ -1,145 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: localhost:8889
--- Tiempo de generación: 26-09-2025 a las 18:56:35
--- Versión del servidor: 8.0.40
--- Versión de PHP: 8.3.14
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: `SGAE`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `alumnos`
---
-
-CREATE TABLE `alumnos` (
-  `id_alumno` int NOT NULL,
-  `rut` varchar(12) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `apellidos` varchar(150) NOT NULL,
-  `id_curso` int NOT NULL,
-  `creado_en` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `alumnos`
---
-
-INSERT INTO `alumnos` (`id_alumno`, `rut`, `nombre`, `apellidos`, `id_curso`, `creado_en`) VALUES
-(1, '20898767', 'prueba', 'prueba', 1, '2025-09-26 18:52:34');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `asignaturas`
---
-
-CREATE TABLE `asignaturas` (
-  `id_asignatura` int NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `id_curso` int NOT NULL,
-  `id_profesor` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `asistencias`
---
-
-CREATE TABLE `asistencias` (
-  `id_asistencia` int NOT NULL,
-  `id_alumno` int NOT NULL,
-  `id_asignatura` int NOT NULL,
-  `fecha` date NOT NULL,
-  `estado` enum('presente','ausente','atraso') NOT NULL,
-  `creado_en` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `cursos`
---
-
-CREATE TABLE `cursos` (
-  `id_curso` int NOT NULL,
-  `nombre` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `cursos`
---
-
-INSERT INTO `cursos` (`id_curso`, `nombre`) VALUES
-(2, 'primer B'),
-(1, 'Primero A');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `notas`
---
-
-CREATE TABLE `notas` (
-  `id_nota` int NOT NULL,
-  `id_alumno` int NOT NULL,
-  `id_asignatura` int NOT NULL,
-  `nota` decimal(3,1) DEFAULT NULL,
-  `fecha` date NOT NULL,
-  `creado_en` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `profesores`
---
-
-CREATE TABLE `profesores` (
-  `id_profesor` int NOT NULL,
-  `rut` varchar(12) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `apellidos` varchar(150) NOT NULL,
-  `especialidad` varchar(100) DEFAULT NULL,
-  `creado_en` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `sgae_modulos`
---
-
-CREATE TABLE `sgae_modulos` (
-  `id` int NOT NULL,
-  `nombre` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `etiqueta` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `ruta` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `tabla` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuarios`
---
 
 CREATE TABLE `usuarios` (
   `rut` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -158,134 +16,100 @@ INSERT INTO `usuarios` (`rut`, `dv`, `nombre`, `correo`, `password`, `rol`) VALU
 ('17451229', '9', 'carla', 'carlesflor@gmail.com', '$2y$10$S4Ysak..8m4AyBY.V2jJy.2hCk7AiefDL3DTiY3pUzEXus0F02IlC', 'docente'),
 ('18804911', '7', 'josue', 'josuepazmio@gmail.com', '$2y$10$d3rVcqUrNh76.jBnSTuxKeLm4WJUP0WtMkiC4fzXp90B8mLoFpUhK', 'admin');
 
---
--- Índices para tablas volcadas
---
 
---
--- Indices de la tabla `alumnos`
---
-ALTER TABLE `alumnos`
-  ADD PRIMARY KEY (`id_alumno`),
-  ADD UNIQUE KEY `rut` (`rut`),
-  ADD KEY `id_curso` (`id_curso`);
+-- Tabla: cursos
+CREATE TABLE cursos (
+    id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE
+);
 
---
--- Indices de la tabla `asignaturas`
---
-ALTER TABLE `asignaturas`
-  ADD PRIMARY KEY (`id_asignatura`),
-  ADD KEY `id_profesor` (`id_profesor`),
-  ADD KEY `id_curso` (`id_curso`);
+-- Tabla: alumnos
+CREATE TABLE alumnos (
+    id_alumno INT AUTO_INCREMENT PRIMARY KEY,
+    rut VARCHAR(12) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(150) NOT NULL,
+    id_curso INT NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_curso) REFERENCES cursos(id_curso)
+);
 
---
--- Indices de la tabla `asistencias`
---
-ALTER TABLE `asistencias`
-  ADD PRIMARY KEY (`id_asistencia`),
-  ADD UNIQUE KEY `id_alumno` (`id_alumno`,`id_asignatura`,`fecha`),
-  ADD KEY `id_asignatura` (`id_asignatura`);
+-- Tabla: profesores
+CREATE TABLE profesores (
+    id_profesor INT AUTO_INCREMENT PRIMARY KEY,
+    rut VARCHAR(12) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(150) NOT NULL,
+    especialidad VARCHAR(100),
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
---
--- Indices de la tabla `cursos`
---
-ALTER TABLE `cursos`
-  ADD PRIMARY KEY (`id_curso`),
-  ADD UNIQUE KEY `nombre` (`nombre`);
+-- Tabla: asignaturas
+CREATE TABLE asignaturas (
+    id_asignatura INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    id_curso INT NOT NULL,
+    id_profesor INT,
+    FOREIGN KEY (id_profesor) REFERENCES profesores(id_profesor),
+    FOREIGN KEY (id_curso) REFERENCES cursos(id_curso)
+);
 
---
--- Indices de la tabla `notas`
---
-ALTER TABLE `notas`
-  ADD PRIMARY KEY (`id_nota`),
-  ADD KEY `id_alumno` (`id_alumno`),
-  ADD KEY `id_asignatura` (`id_asignatura`);
+-- Tabla: asistencias
+CREATE TABLE asistencias (
+    id_asistencia INT AUTO_INCREMENT PRIMARY KEY,
+    id_alumno INT NOT NULL,
+    id_asignatura INT NOT NULL,
+    fecha DATE NOT NULL,
+    estado ENUM('presente','ausente','atraso') NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno),
+    FOREIGN KEY (id_asignatura) REFERENCES asignaturas(id_asignatura),
+    UNIQUE (id_alumno, id_asignatura, fecha) -- evita duplicados
+);
 
---
--- Indices de la tabla `profesores`
---
-ALTER TABLE `profesores`
-  ADD PRIMARY KEY (`id_profesor`),
-  ADD UNIQUE KEY `rut` (`rut`);
+-- Tabla: notas
+CREATE TABLE notas (
+    id_nota INT AUTO_INCREMENT PRIMARY KEY,
+    id_alumno INT NOT NULL,
+    id_asignatura INT NOT NULL,
+    nota DECIMAL(3,1) CHECK (nota >= 1.0 AND nota <= 7.0),
+    fecha DATE NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno),
+    FOREIGN KEY (id_asignatura) REFERENCES asignaturas(id_asignatura)
+);
 
---
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`rut`);
 
---
--- AUTO_INCREMENT de las tablas volcadas
---
+-- Tabla de permisos atómicos (recurso + acción)
+CREATE TABLE IF NOT EXISTS permisos (
+  id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+  recurso    VARCHAR(64) NOT NULL,
+  accion     VARCHAR(32) NOT NULL,
+  etiqueta   VARCHAR(128) NOT NULL, -- texto visible (ej: "Usuarios: ver")
+  UNIQUE KEY uq_perm (recurso, accion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- AUTO_INCREMENT de la tabla `alumnos`
---
-ALTER TABLE `alumnos`
-  MODIFY `id_alumno` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+-- Mapeo rol -> permiso
+CREATE TABLE IF NOT EXISTS rol_permiso (
+  id_rol_permiso INT AUTO_INCREMENT PRIMARY KEY,
+  rol        VARCHAR(32) NOT NULL,            -- ej: admin, docente, alumno, apoderado
+  id_permiso INT NOT NULL,
+  UNIQUE KEY uq_rol_perm (rol, id_permiso),
+  CONSTRAINT fk_rolperm_perm FOREIGN KEY (id_permiso) REFERENCES permisos(id_permiso) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- AUTO_INCREMENT de la tabla `asignaturas`
---
-ALTER TABLE `asignaturas`
-  MODIFY `id_asignatura` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `asistencias`
---
-ALTER TABLE `asistencias`
-  MODIFY `id_asistencia` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `cursos`
---
-ALTER TABLE `cursos`
-  MODIFY `id_curso` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de la tabla `notas`
---
-ALTER TABLE `notas`
-  MODIFY `id_nota` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `profesores`
---
-ALTER TABLE `profesores`
-  MODIFY `id_profesor` int NOT NULL AUTO_INCREMENT;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `alumnos`
---
-ALTER TABLE `alumnos`
-  ADD CONSTRAINT `alumnos_ibfk_1` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`);
-
---
--- Filtros para la tabla `asignaturas`
---
-ALTER TABLE `asignaturas`
-  ADD CONSTRAINT `asignaturas_ibfk_1` FOREIGN KEY (`id_profesor`) REFERENCES `profesores` (`id_profesor`),
-  ADD CONSTRAINT `asignaturas_ibfk_2` FOREIGN KEY (`id_curso`) REFERENCES `cursos` (`id_curso`);
-
---
--- Filtros para la tabla `asistencias`
---
-ALTER TABLE `asistencias`
-  ADD CONSTRAINT `asistencias_ibfk_1` FOREIGN KEY (`id_alumno`) REFERENCES `alumnos` (`id_alumno`),
-  ADD CONSTRAINT `asistencias_ibfk_2` FOREIGN KEY (`id_asignatura`) REFERENCES `asignaturas` (`id_asignatura`);
-
---
--- Filtros para la tabla `notas`
---
-ALTER TABLE `notas`
-  ADD CONSTRAINT `notas_ibfk_1` FOREIGN KEY (`id_alumno`) REFERENCES `alumnos` (`id_alumno`),
-  ADD CONSTRAINT `notas_ibfk_2` FOREIGN KEY (`id_asignatura`) REFERENCES `asignaturas` (`id_asignatura`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- (Opcional) semillas de permisos comunes
+INSERT IGNORE INTO permisos (recurso,accion,etiqueta) VALUES
+('dashboard','view','Dashboard: ver'),
+('usuarios','view','Usuarios: ver'),
+('usuarios','manage','Usuarios: crear/editar/eliminar'),
+('alumnos','view','Alumnos: ver'),
+('alumnos','manage','Alumnos: crear/editar/eliminar'),
+('cursos','view','Cursos: ver'),
+('cursos','manage','Cursos: crear/editar/eliminar'),
+('profesores','view','Profesores: ver'),
+('profesores','manage','Profesores: crear/editar/eliminar'),
+('asignaturas','view','Asignaturas: ver'),
+('asignaturas','manage','Asignaturas: crear/editar/eliminar'),
+('config','view','Configuración: ver'),
+('config','manage','Configuración: modificar');
