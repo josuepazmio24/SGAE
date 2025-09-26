@@ -78,6 +78,7 @@ CREATE TABLE notas (
     FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno),
     FOREIGN KEY (id_asignatura) REFERENCES asignaturas(id_asignatura)
 );
+<<<<<<< HEAD
 
 
 -- Tabla de permisos atómicos (recurso + acción)
@@ -113,3 +114,5 @@ INSERT IGNORE INTO permisos (recurso,accion,etiqueta) VALUES
 ('asignaturas','manage','Asignaturas: crear/editar/eliminar'),
 ('config','view','Configuración: ver'),
 ('config','manage','Configuración: modificar');
+=======
+
