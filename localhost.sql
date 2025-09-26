@@ -1,31 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: localhost:8889
--- Tiempo de generación: 26-09-2025 a las 18:56:35
--- Versión del servidor: 8.0.40
--- Versión de PHP: 8.3.14
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: `SGAE`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `alumnos`
---
 
 CREATE TABLE `alumnos` (
   `id_alumno` int NOT NULL,
