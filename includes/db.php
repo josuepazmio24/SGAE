@@ -3,7 +3,7 @@
 $DB_HOST = 'localhost';
 $DB_NAME = 'SGAE';
 $DB_USER = 'root';
-$DB_PASS = 'root'; // cambia según tu entorno
+$DB_PASS = ''; // cambia según tu entorno
 
 try {
     $pdo = new PDO(
@@ -18,3 +18,4 @@ try {
 } catch (PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }
+    
