@@ -1,0 +1,5 @@
+/* Sidebar básico */
+#sidebar { height: 100vh; }
+@media (max-width: 991px){
+#sidebar { display:none; }
+}
