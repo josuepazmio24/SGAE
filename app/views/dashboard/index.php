@@ -7,7 +7,6 @@ $modulos_pend = [
   ['nombre'=>'Apoderados',           'nota'=>'CRUD'],
   ['nombre'=>'Alumno–Apoderado',     'nota'=>'Vinculación'],
   ['nombre'=>'Periodos',             'nota'=>'CRUD (opcional en Evaluaciones)'],
-  ['nombre'=>'Auditoría (viewer)',   'nota'=>'Listado y filtros'],
 ];
 ?>
 <div class="row g-3">
