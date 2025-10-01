@@ -1,8 +1,13 @@
 <header class="border-bottom bg-white">
 <div class="container-fluid py-2 d-flex align-items-center justify-content-between">
 <div>
+    <?php if (!empty($_SESSION['user'])): ?>
+
+<?php endif; ?>
+
 <?php if (!empty($_SESSION['user'])): ?>
 <span class="text-muted">Panel general</span>
+
 <?php else: ?>
 <span class="text-muted">Autenticación</span>
 <?php endif; ?>

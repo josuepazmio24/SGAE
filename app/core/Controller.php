@@ -12,7 +12,17 @@ echo $content;
 }
 }
 
+protected function requireRole(string ...$roles): void {
+    $u = $_SESSION['user'] ?? null;
+    if (!$u || !in_array($u['rol'], $roles, true)) {
+        header('Location: ' . BASE_URL . '/index.php?r=auth/login');
+        exit;
+    }
+}
 
+protected function authorize(string $perm): void {
+    Auth::require($perm);
+}
 protected function isLogged(): bool { return !empty($_SESSION['user']); }
 
 
