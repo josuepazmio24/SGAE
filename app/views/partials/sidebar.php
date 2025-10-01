@@ -6,10 +6,11 @@
 <a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=dashboard/index">Dashboard</a>
 <!-- Próximos módulos -->
 <a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=niveles/index">Niveles</a>
-<a class="list-group-item list-group-item-action disabled" href="#">Cursos</a>
-<a class="list-group-item list-group-item-action disabled" href="#">Asignaturas</a>
-<a class="list-group-item list-group-item-action disabled" href="#">Secciones</a>
-<a class="list-group-item list-group-item-action disabled" href="#">Sesiones de clase</a>
+<a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=cursos/index">Cursos</a>
+<a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=asignaturas/index">Asignaturas</a>
+<a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=secciones/index">Carga Horaria </a>
+<a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=sesiones/index">Leccionario</a>
+
 <a class="list-group-item list-group-item-action disabled" href="#">Asistencias</a>
 <a class="list-group-item list-group-item-action disabled" href="#">Evaluaciones</a>
 <a class="list-group-item list-group-item-action disabled" href="#">Calificaciones</a>
