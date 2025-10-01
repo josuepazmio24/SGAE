@@ -1,7 +1,10 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h5 class="mb-0">Carga Horaria </h5>
   <a class="btn btn-primary" href="<?= View::e(BASE_URL) ?>/index.php?r=secciones/crear">Nueva sección</a>
+
+
 </div>
+
 
 <?php if (!empty($_GET['ok'])): ?>
   <div class="alert alert-success">Operación realizada con éxito.</div>

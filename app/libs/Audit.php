@@ -1,4 +1,5 @@
 <?php
+
 class Audit {
 public static function log(int $usuarioId, string $accion, string $entidad, string $entidadId, ?string $descripcion = null): void {
 // Tabla: auditoria_logs (usuario_id NOT NULL, ON DELETE RESTRICT)

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../libs/Auth.php';
+
 class Calificacion
 {
     public static function validar(array $d, bool $esEditar=false): array {
@@ -9,9 +11,12 @@ class Calificacion
         $d['nota']          = (string)($d['nota'] ?? '');
         $d['observacion']   = trim($d['observacion'] ?? '');
 
-        if ($d['seccion_id'] <= 0)       $err['seccion_id'] = 'Seleccione una sección';
-        if ($d['evaluacion_id'] <= 0)    $err['evaluacion_id'] = 'Seleccione una evaluación';
-        if ($d['alumno_rut'] <= 0)       $err['alumno_rut'] = 'Seleccione un alumno';
+        if ($d['seccion_id'] <= 0)       $err['seccion_id']   = 'Seleccione una sección';
+        if ($d['evaluacion_id'] <= 0)    $err['evaluacion_id']= 'Seleccione una evaluación';
+        if ($d['alumno_rut'] <= 0)       $err['alumno_rut']   = 'Seleccione un alumno';
+
+        // normalizar coma -> punto
+        $d['nota'] = str_replace(',', '.', $d['nota']);
 
         // nota: número con un decimal, entre 1.0 y 7.0
         if (!is_numeric($d['nota'])) {
@@ -85,7 +90,16 @@ class Calificacion
         $sql .= " ORDER BY e.fecha DESC, e.id DESC, alumno_nombre ASC
                   LIMIT :lim OFFSET :off";
         $st = $db->prepare($sql);
-        foreach ($p as $k=>$v) $st->bindValue($k, $v, is_int($v)||is_float($v)?PDO::PARAM_STR:PDO::PARAM_STR);
+        foreach ($p as $k=>$v) {
+            // bind correcto de tipos
+            if (in_array($k, [':sec',':ev'], true)) {
+                $st->bindValue($k, (int)$v, PDO::PARAM_INT);
+            } elseif (in_array($k, [':min',':max'], true)) {
+                $st->bindValue($k, (string)$v, PDO::PARAM_STR); // DECIMAL como string
+            } else {
+                $st->bindValue($k, $v, PDO::PARAM_STR);
+            }
+        }
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->bindValue(':off', $offset, PDO::PARAM_INT);
         $st->execute();
@@ -196,5 +210,90 @@ class Calificacion
         $st = $db->prepare($sql);
         $st->execute([':sid'=>$seccionId]);
         return $st->fetchAll();
+    }
+
+    // ================================
+    // ===  Planilla por Sección    ===
+    // ================================
+
+    /** Devuelve mapa [evaluacion_id][alumno_rut] => fila calificación */
+   public static function mapaPorSeccion(int $seccionId): array {
+    $db = Database::get();
+    $st = $db->prepare("SELECT c.evaluacion_id, c.alumno_rut, c.nota, c.observacion
+                        FROM calificaciones c
+                        JOIN evaluaciones e ON e.id = c.evaluacion_id
+                        WHERE e.seccion_id = :sid");
+    $st->execute([':sid'=>$seccionId]);
+    $map = [];
+    foreach ($st->fetchAll() as $r) {
+        $map[(int)$r['evaluacion_id']][(int)$r['alumno_rut']] = [
+            'nota' => $r['nota'],
+            'observacion' => $r['observacion']
+        ];
+    }
+    return $map;
+}
+
+
+    /**
+     * Inserta/actualiza/elimina calificaciones en lote desde la planilla.
+     * $notas: [evalId][alumnoRut] = "6.5" | ""  (vacío = eliminar)
+     */
+    public static function upsertLote(int $seccion_id, array $notas, int $registrado_por): void {
+        $db = Database::get();
+        $db->beginTransaction();
+        try {
+            // validar que los evalIds pertenezcan a la sección
+            $evalIds = array_map('intval', array_keys($notas));
+            $validSet = [];
+            if ($evalIds) {
+                $in  = implode(',', array_fill(0, count($evalIds), '?'));
+                $chk = $db->prepare("SELECT id FROM evaluaciones WHERE seccion_id=? AND id IN ($in)");
+                $params = array_merge([$seccion_id], $evalIds);
+                $chk->execute($params);
+                $valid = $chk->fetchAll(PDO::FETCH_COLUMN);
+                $validSet = array_flip(array_map('intval', $valid));
+            }
+
+            $ins = $db->prepare("INSERT INTO calificaciones (evaluacion_id, alumno_rut, nota, observacion, registrado_por)
+                                 VALUES (:e,:a,:n,NULL,:u)
+                                 ON DUPLICATE KEY UPDATE nota=VALUES(nota), registrado_por=VALUES(registrado_por)");
+            $del = $db->prepare("DELETE FROM calificaciones WHERE evaluacion_id=:e AND alumno_rut=:a");
+
+            foreach ($notas as $evalId => $porAlumno) {
+                $evalId = (int)$evalId;
+                if ($validSet && !isset($validSet[$evalId])) continue; // ignora evals ajenas
+                foreach ($porAlumno as $alumnoRut => $notaStr) {
+                    $alumnoRut = (int)$alumnoRut;
+                    $notaStr = str_replace(',', '.', trim((string)$notaStr));
+
+                    if ($notaStr === '') {
+                        // eliminar calificación si existe
+                        $del->execute([':e'=>$evalId, ':a'=>$alumnoRut]);
+                        continue;
+                    }
+
+                    if (!is_numeric($notaStr)) {
+                        throw new InvalidArgumentException("Nota inválida: $notaStr (alumno $alumnoRut, eval $evalId)");
+                    }
+                    $nota = round((float)$notaStr, 1);
+                    if ($nota < 1.0 || $nota > 7.0) {
+                        throw new InvalidArgumentException("Nota fuera de rango: $nota (alumno $alumnoRut, eval $evalId)");
+                    }
+
+                    $ins->execute([
+                        ':e'=>$evalId,
+                        ':a'=>$alumnoRut,
+                        ':n'=>number_format($nota, 1, '.', ''),
+                        ':u'=>$registrado_por
+                    ]);
+                }
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            throw $e;
+        }
     }
 }

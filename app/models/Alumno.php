@@ -48,17 +48,20 @@ class Alumno
         return $st->fetchAll();
     }
 
-    public static function obtener(int $rut): ?array {
-        $db = Database::get();
-        $st = $db->prepare("SELECT al.rut, al.nro_matricula, al.fecha_ingreso, al.activo,
-                                   p.dv, p.nombres, p.apellidos, p.email
-                            FROM alumnos al
-                            JOIN personas p ON p.rut=al.rut
-                            WHERE al.rut=:rut");
-        $st->execute([':rut'=>$rut]);
-        $r = $st->fetch();
-        return $r ?: null;
-    }
+   public static function alumnos(int $seccionId): array {
+    $db = Database::get();
+    $sql = "SELECT a.rut, p.nombres, p.apellidos
+            FROM secciones_asignatura s
+            JOIN cursos c       ON c.id = s.curso_id
+            JOIN matriculas m   ON m.curso_id = c.id AND m.estado='VIGENTE'
+            JOIN alumnos a      ON a.rut = m.alumno_rut AND a.activo = 1
+            JOIN personas p     ON p.rut = a.rut
+            WHERE s.id = :sid
+            ORDER BY p.apellidos ASC, p.nombres ASC";
+    $st = $db->prepare($sql);
+    $st->execute([':sid'=>$seccionId]);
+    return $st->fetchAll();
+}
 
     public static function crear(array $d): int {
         [$d,$err] = self::validar($d);

@@ -78,13 +78,29 @@ class Seccion
         return $st->fetchAll();
     }
 
-    public static function obtener(int $id): ?array {
-        $db = Database::get();
-        $st = $db->prepare("SELECT id, curso_id, asignatura_id, profesor_rut FROM secciones_asignatura WHERE id=:id");
-        $st->execute([':id'=>$id]);
-        $r = $st->fetch();
-        return $r ?: null;
-    }
+    /** 👉 Ahora devuelve también labels: curso, asignatura, profesor */
+   public static function obtener(int $id): ?array {
+    $db = Database::get();
+    $sql = "SELECT s.id,
+                   c.id AS curso_id, c.anio, c.letra,
+                   nv.nombre AS nivel_nombre,
+                   a.id AS asignatura_id, a.nombre AS asignatura_nombre, a.codigo AS asignatura_codigo,
+                   p.rut AS profesor_rut, CONCAT_WS(' ', p.nombres, p.apellidos) AS profesor_nombre
+            FROM secciones_asignatura s
+            JOIN cursos c    ON c.id = s.curso_id
+            JOIN niveles nv  ON nv.id = c.nivel_id
+            JOIN asignaturas a ON a.id = s.asignatura_id
+            JOIN personas p  ON p.rut = s.profesor_rut
+            WHERE s.id = :id
+            LIMIT 1";
+    $st = $db->prepare($sql);
+    $st->execute([':id'=>$id]);
+    $r = $st->fetch();
+    return $r ?: null;
+
+
+}
+
 
     public static function crear(array $d, int $usuarioId): int {
         [$d, $err] = self::validar($d);
@@ -158,4 +174,24 @@ class Seccion
                 ORDER BY pe.apellidos ASC, pe.nombres ASC";
         return $db->query($sql)->fetchAll();
     }
+
+    /** 👉 Necesaria para Planilla: lista alumnos vigentes del curso de la sección */
+    public static function alumnos(int $seccion_id): array {
+        $db = Database::get();
+        $sql = "SELECT al.rut,
+                       p.nombres, p.apellidos
+                FROM secciones_asignatura s
+                JOIN cursos c        ON c.id = s.curso_id
+                JOIN matriculas m    ON m.curso_id = c.id AND m.estado='VIGENTE'
+                JOIN alumnos al      ON al.rut = m.alumno_rut AND al.activo=1
+                JOIN personas p      ON p.rut = al.rut
+                WHERE s.id = :sid
+                ORDER BY p.apellidos ASC, p.nombres ASC";
+        $st = $db->prepare($sql);
+        $st->execute([':sid'=>$seccion_id]);
+        return $st->fetchAll();
+    }
+
+
+    
 }

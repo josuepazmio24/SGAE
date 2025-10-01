@@ -5,6 +5,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SGAE</title>
+<link rel="icon" type="image/png" href="<?= View::e(BASE_URL) ?>/assets/img/logo.png">
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="<?= View::e(BASE_URL) ?>/assets/css/custom.css" rel="stylesheet">
 </head>

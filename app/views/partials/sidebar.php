@@ -17,10 +17,7 @@
 <a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=personas/index">Personas</a>
 <a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=alumnos/index">Alumnos</a>
 <a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=usuarios/index">Usuarios</a>
-<!-- app/views/partials/sidebar.php -->
-<a class="list-group-item list-group-item-action" href="<?= View::e(BASE_URL) ?>/index.php?r=secciones/index">Secciones</a>
-
-
-
+<a class="list-group-item list-group-item-action" 
+   href="<?= View::e(BASE_URL) ?>/index.php?r=auditoria/index">Auditoría</a>
 </ul>
 </nav>

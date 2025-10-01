@@ -19,12 +19,16 @@ class Evaluacion
         if ($d['nombre'] === '')              $err['nombre'] = 'Ingrese un nombre';
         if (!in_array($d['tipo'], self::tipos(), true)) $err['tipo'] = 'Tipo inválido';
         if ($d['fecha'] === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $d['fecha'])) $err['fecha'] = 'Fecha inválida (YYYY-MM-DD)';
+
+        // permitir "10,5" → "10.5"
+        $d['ponderacion'] = str_replace(',', '.', $d['ponderacion']);
         if (!is_numeric($d['ponderacion']))   $err['ponderacion'] = 'Ponderación inválida';
         else {
             $pond = (float)$d['ponderacion'];
             if ($pond < 0 || $pond > 100)     $err['ponderacion'] = 'Ponderación 0 a 100';
             $d['ponderacion'] = number_format($pond, 2, '.', '');
         }
+
         if (!in_array($d['publicado'], [0,1], true)) $d['publicado'] = 0;
 
         return [$d, $err];
@@ -73,7 +77,10 @@ class Evaluacion
         if ($hasta)        { $sql.=" AND e.fecha<=:h"; $p[':h']=$hasta; }
         $sql .= " ORDER BY e.fecha DESC, e.id DESC LIMIT :lim OFFSET :off";
         $st = $db->prepare($sql);
-        foreach ($p as $k=>$v) $st->bindValue($k, $v, is_int($v)?PDO::PARAM_INT:PDO::PARAM_STR);
+        foreach ($p as $k=>$v) {
+            $st->bindValue($k, is_int($v) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            if (!is_int($v)) $st->bindValue($k, $v, PDO::PARAM_STR);
+        }
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
         $st->bindValue(':off', $offset, PDO::PARAM_INT);
         $st->execute();
@@ -138,12 +145,11 @@ class Evaluacion
             Audit::log($usuarioId, 'ELIMINAR', 'EVALUACION', (string)$id, "Eval eliminada id=$id");
         } catch (Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
-            // Tiene FK con calificaciones → CASCADE, pero si cambiaste reglas, mostramos mensaje genérico:
             throw new RuntimeException('No se pudo eliminar la evaluación.');
         }
     }
 
-    // --- Catálogos ---
+    // -------- Catálogos --------
     public static function listaSecciones(): array {
         $db = Database::get();
         $sql = "SELECT s.id,
@@ -161,4 +167,17 @@ class Evaluacion
         $sql = "SELECT id, CONCAT(anio,' - ',nombre) AS nombre FROM periodos ORDER BY anio DESC, fecha_inicio ASC";
         return $db->query($sql)->fetchAll();
     }
+
+    // ===== Requerido por Secciones → Planilla =====
+ public static function listarPorSeccion(int $seccionId): array {
+    $db = Database::get();
+    $st = $db->prepare("SELECT id, nombre, tipo, fecha, ponderacion, publicado
+                        FROM evaluaciones
+                        WHERE seccion_id = :sid
+                        ORDER BY fecha ASC, id ASC");
+    $st->execute([':sid'=>$seccionId]);
+    return $st->fetchAll();
 }
+
+}
+ 
